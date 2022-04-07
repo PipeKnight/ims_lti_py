@@ -161,10 +161,11 @@ class ToolConfig():
                         properties[ext_child.attrib['name']] = ext_child.text
                     elif 'options' in ext_child.tag:
                         opt_name = ext_child.attrib['name']
-                        options = {}
-                        for option_child in ext_child.getchildren():
-                            options[option_child.attrib['name']] =\
-                                    option_child.text
+                        options = {
+                            option_child.attrib['name']: option_child.text
+                            for option_child in ext_child.getchildren()
+                        }
+
                         properties[opt_name] = options
 
                 self.set_ext_params(platform, properties)
@@ -194,30 +195,32 @@ class ToolConfig():
                     '{%s}%s' %(NSMAP['xsi'], 'schemaLocation'): 'http://www.imsglobal.org/xsd/imslticc_v1p0 http://www.imsglobal.org/xsd/lti/ltiv1p0/imslticc_v1p0.xsd http://www.imsglobal.org/xsd/imsbasiclti_v1p0 http://www.imsglobal.org/xsd/lti/ltiv1p0/imsbasiclti_v1p0p1.xsd http://www.imsglobal.org/xsd/imslticm_v1p0 http://www.imsglobal.org/xsd/lti/ltiv1p0/imslticm_v1p0.xsd http://www.imsglobal.org/xsd/imslticp_v1p0 http://www.imsglobal.org/xsd/lti/ltiv1p0/imslticp_v1p0.xsd',
                     'xmlns': 'http://www.imsglobal.org/xsd/imslticc_v1p0'
                     }, nsmap = NSMAP)
-        
+
         for key in ['title', 'description', 'launch_url', 'secure_launch_url']:
             option = etree.SubElement(root, '{%s}%s' %(NSMAP['blti'], key))
             option.text = getattr(self, key)
 
         vendor_keys = ['name', 'code', 'description', 'url']
-        if any('vendor_' + key for key in vendor_keys) or\
-                self.vendor_contact_email:
-                    vendor_node = etree.SubElement(root, '{%s}%s'
-                            %(NSMAP['blti'], 'vendor'))
-                    for key in vendor_keys:
-                        if getattr(self, 'vendor_' + key) != None:
-                            v_node = etree.SubElement(vendor_node,
-                                    '{%s}%s' %(NSMAP['lticp'], key))
-                            v_node.text = getattr(self, 'vendor_' + key)
-                    if getattr(self, 'vendor_contact_email'):
-                        v_node = etree.SubElement(vendor_node,
-                                '{%s}%s' %(NSMAP['lticp'], 'contact'))
-                        c_name = etree.SubElement(v_node,
-                                '{%s}%s' %(NSMAP['lticp'], 'name'))
-                        c_name.text = self.vendor_contact_name
-                        c_email = etree.SubElement(v_node,
-                                '{%s}%s' %(NSMAP['lticp'], 'email'))
-                        c_email.text = self.vendor_contact_email
+        if (
+            any(f'vendor_{key}' for key in vendor_keys)
+            or self.vendor_contact_email
+        ):
+            vendor_node = etree.SubElement(root, '{%s}%s'
+                    %(NSMAP['blti'], 'vendor'))
+            for key in vendor_keys:
+                if getattr(self, f'vendor_{key}') != None:
+                    v_node = etree.SubElement(vendor_node,
+                            '{%s}%s' %(NSMAP['lticp'], key))
+                    v_node.text = getattr(self, f'vendor_{key}')
+            if getattr(self, 'vendor_contact_email'):
+                v_node = etree.SubElement(vendor_node,
+                        '{%s}%s' %(NSMAP['lticp'], 'contact'))
+                c_name = etree.SubElement(v_node,
+                        '{%s}%s' %(NSMAP['lticp'], 'name'))
+                c_name.text = self.vendor_contact_name
+                c_email = etree.SubElement(v_node,
+                        '{%s}%s' %(NSMAP['lticp'], 'email'))
+                c_email.text = self.vendor_contact_email
 
         # Custom params
         if len(self.custom_params) != 0:

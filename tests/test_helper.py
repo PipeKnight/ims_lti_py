@@ -51,7 +51,7 @@ def create_test_tc(params = None):
     '''
     Returns a new ToolConsumer.
     '''
-    params = create_params_tc() if params == None else params
+    params = create_params_tc() if params is None else params
     consumer_key = '12345'
     tc = ToolConsumer(consumer_key, 'secret', params)
     tc.launch_url = 'http://dr-chuck.com/ims/php-simple/tool.php'

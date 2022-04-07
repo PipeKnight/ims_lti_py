@@ -8,9 +8,7 @@ class DontTestLaunchParams():
         Should process parameters.
         '''
         for (key, val) in self.params.iteritems():
-            if not 'custom_' in key\
-                    and not 'ext_' in key\
-                    and not 'roles' in key:
+            if 'custom_' not in key and 'ext_' not in key and 'roles' not in key:
                 self.assertEquals(getattr(self.tool, key), val)
 
         # Test roles

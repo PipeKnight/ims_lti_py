@@ -146,8 +146,7 @@ class OutcomeResponse():
         operation_ref_identifier.text = str(self.operation)
 
         body = etree.SubElement(root, 'imsx_POXBody')
-        response = etree.SubElement(body, '%s%s' % (self.operation,
-                                                    'Response'))
+        response = etree.SubElement(body, f'{self.operation}Response')
 
         if self.score:
             result = etree.SubElement(response, 'result')
