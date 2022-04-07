@@ -58,8 +58,9 @@ class ToolProvider(LaunchParamsMixin, RequestValidatorMixin, object):
         '''
         Check whether the Launch Paramters set the role.
         '''
-        return self.roles and any([re.search(role, our_role, re.I)
-                                   for our_role in self.roles])
+        return self.roles and any(
+            re.search(role, our_role, re.I) for our_role in self.roles
+        )
 
     def is_student(self):
         '''
@@ -167,9 +168,7 @@ class ToolProvider(LaunchParamsMixin, RequestValidatorMixin, object):
         # Disassemble original return URL and reassemble with our options added
         original = urlsplit(self.launch_presentation_return_url)
 
-        combined = messages.copy()
-        combined.update(dict(parse_qsl(original.query)))
-
+        combined = messages | parse_qsl(original.query)
         combined_query = urlencode(combined)
 
         return urlunsplit((
@@ -181,13 +180,13 @@ class ToolProvider(LaunchParamsMixin, RequestValidatorMixin, object):
         ))
 
     def new_request(self, defaults):
-        opts = dict(defaults)
-        opts.update({
+        opts = dict(defaults) | {
             'consumer_key': self.consumer_key,
             'consumer_secret': self.consumer_secret,
             'lis_outcome_service_url': self.lis_outcome_service_url,
-            'lis_result_sourcedid': self.lis_result_sourcedid
-        })
+            'lis_result_sourcedid': self.lis_result_sourcedid,
+        }
+
         self.outcome_requests.append(OutcomeRequest(opts=opts))
         self.last_outcome_request = self.outcome_requests[-1]
         return self.last_outcome_request

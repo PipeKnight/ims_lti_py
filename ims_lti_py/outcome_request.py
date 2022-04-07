@@ -72,17 +72,18 @@ class OutcomeRequest():
         self.operation = REPLACE_REQUEST
         self.score = score
         self.result_data = result_data
-        if result_data is not None:
-            if len(result_data) > 1:
-                error_msg = ('Dictionary result_data can only have one entry. '
-                             '{0} entries were found.'.format(len(result_data)))
-                raise InvalidLTIConfigError(error_msg)
-            elif 'text' not in result_data and 'url' not in result_data:
-                error_msg = ('Dictionary result_data can only have the key '
-                             '"text" or the key "url".')
-                raise InvalidLTIConfigError(error_msg)
-            else:
-                return self.post_outcome_request()
+        if result_data is not None and len(result_data) > 1:
+            error_msg = ('Dictionary result_data can only have one entry. '
+                         '{0} entries were found.'.format(len(result_data)))
+            raise InvalidLTIConfigError(error_msg)
+        elif (
+            result_data is not None
+            and 'text' not in result_data
+            and 'url' not in result_data
+        ):
+            error_msg = ('Dictionary result_data can only have the key '
+                         '"text" or the key "url".')
+            raise InvalidLTIConfigError(error_msg)
         else:
             return self.post_outcome_request()
 
@@ -225,8 +226,7 @@ class OutcomeRequest():
                                               'imsx_messageIdentifier')
         message_identifier.text = self.message_identifier
         body = etree.SubElement(root, 'imsx_POXBody')
-        request = etree.SubElement(body, '%s%s' % (self.operation,
-                                                   'Request'))
+        request = etree.SubElement(body, f'{self.operation}Request')
         record = etree.SubElement(request, 'resultRecord')
 
         guid = etree.SubElement(record, 'sourcedGUID')
